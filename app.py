@@ -1,16 +1,16 @@
-# 🏆 Sports Guy - Streamlit Web App
+# 🏆 Sports Guy - Streamlit Web App (Fixed for deployment)
 
 import streamlit as st
 from openai import OpenAI
 import os
 
-# --- 🔐 API Key Setup ---
+# --- Streamlit UI Setup ---
 st.set_page_config(page_title="Sports Guy - Your Sports Assistant", page_icon="🏆", layout="centered")
 
 st.title("🏆 Sports Guy - Your Sports Buddy 🏏⚽🏀🎾")
 st.caption("Ask me anything about sports — rules, players, tournaments, and more!")
 
-# Sidebar for API Key
+# Sidebar for API Key input
 st.sidebar.header("🔑 API Key Setup")
 api_key = st.sidebar.text_input("Enter your OpenRouter API Key:", type="password")
 
@@ -18,13 +18,14 @@ if not api_key:
     st.warning("⚠️ Please enter your OpenRouter API key in the sidebar to start chatting.")
     st.stop()
 
-# --- Initialize OpenAI Client ---
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=api_key
-)
+# ✅ Fix: Set API key & base URL as environment variables
+os.environ["OPENAI_API_KEY"] = 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
+os.environ["OPENAI_BASE_URL"] = "https://openrouter.ai/api/v1"
 
-# --- Personality & Behavior ---
+# Initialize OpenAI client (no parameters needed now)
+client = OpenAI()
+
+# --- Personality ---
 SYSTEM_PROMPT = """
 You are 'Sports Guy' — an energetic, friendly, and knowledgeable sports assistant 🏆.
 You help users with:
@@ -40,11 +41,11 @@ Style:
 MODEL = "deepseek/deepseek-chat-v3.1:free"
 TEMPERATURE = 0.8
 
-# --- Chat UI ---
+# --- Chat Memory ---
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-# --- Chat Display ---
+# --- Display Chat ---
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         with st.chat_message("user"):
@@ -53,7 +54,7 @@ for msg in st.session_state.messages:
         with st.chat_message("assistant"):
             st.write(msg["content"])
 
-# --- User Input ---
+# --- Chat Input ---
 if user_input := st.chat_input("Ask me about any sport..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
